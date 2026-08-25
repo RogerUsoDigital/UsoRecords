@@ -1,0 +1,33 @@
+services:
+  usorecords:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: usorecords
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: usorecords-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: usorecords
+      MYSQL_USER: usouser
+      MYSQL_PASSWORD: usopassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  vendor:
