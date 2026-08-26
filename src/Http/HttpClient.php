@@ -22,6 +22,11 @@ final class HttpClient
     {
         return $this->client->request('GET', $url, $options);
     }
+    
+    public function post(string $url, array $options = []): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->client->request('POST', $url, $options);
+    }
 
     private function envFloat(string $name, float $default): float
     {

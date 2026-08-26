@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "php": "^8.4",
-        "guzzlehttp/guzzle": "^7.9"
+        "guzzlehttp/guzzle": "^7.9",
+        "google/cloud-storage": "^2.5"
     },
     "autoload": {
         "psr-4": {

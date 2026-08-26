@@ -61,14 +61,15 @@ class AudioService
         $datePath = date('Y/m/d');
         $storagePath = "audio/{$datePath}/{$id}";
 
-        $uploadSuccess = $this->storageService->upload($storagePath, $stream, $mimeType);
+        $storageResult = $this->storageService->upload($storagePath, $stream, $mimeType);
 
-        if (!$uploadSuccess) {
+        if (!$storageResult['success']) {
             return [
-                'status' => 500,
+                'status' => $storageResult['status'] ?? 500,
                 'body' => [
                     'success' => false,
-                    'message' => 'Falha ao salvar o áudio no armazenamento.',
+                    'message' => $storageResult['message'] ?? 'Falha ao salvar o áudio no armazenamento.',
+                    'error_code' => $storageResult['error_code'] ?? 'STORAGE_ERROR',
                 ],
             ];
         }
@@ -110,7 +111,8 @@ class AudioService
                 'data' => [
                     'id' => $id,
                     'status' => 'stored',
-                    'download_url' => $downloadUrl,
+                    'stream_url' => $downloadUrl,
+                    'download_url' => $downloadUrl . "?download=1",
                 ],
             ],
         ];

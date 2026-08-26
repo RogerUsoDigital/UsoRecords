@@ -14,19 +14,27 @@ final class LocalStorageDriver implements StorageDriverInterface
         $this->basePath = rtrim($basePath, '/');
     }
 
-    public function upload(string $path, StreamInterface $stream, string $mimeType): bool
+    public function upload(string $path, StreamInterface $stream, string $mimeType): array
     {
         $fullPath = $this->basePath . '/' . ltrim($path, '/');
         $dir = dirname($fullPath);
 
         if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            return false;
+            return [
+                'success' => false,
+                'status' => 500,
+                'message' => 'Falha ao salvar o áudio no armazenamento.',
+            ];
         }
 
         $dest = fopen($fullPath, 'wb');
 
         if ($dest === false) {
-            return false;
+            return [
+                'success' => false,
+                'status' => 500,
+                'message' => 'Falha ao salvar o áudio no armazenamento.',
+            ];
         }
 
         try {
@@ -42,13 +50,25 @@ final class LocalStorageDriver implements StorageDriverInterface
                 if ($bytesWritten === false) {
                     fclose($dest);
 
-                    return false;
+                    return [
+                        'success' => false,
+                        'status' => 500,
+                        'message' => 'Falha ao salvar o áudio no armazenamento.',
+                    ];
                 }
             }
 
-            return true;
+            return [
+                'success' => true,
+                'status' => 200,
+                'message' => 'Upload realizado com sucesso.',
+            ];
         } catch (\Throwable $exception) {
-            return false;
+            return [
+                'success' => false,
+                'status' => 500,
+                'message' => 'Falha ao salvar o áudio no armazenamento.',
+            ];
         } finally {
             fclose($dest);
         }

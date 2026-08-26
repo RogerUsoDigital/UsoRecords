@@ -9,6 +9,6 @@ return [
         'project_id' => getenv('GCS_PROJECT_ID'),
         'bucket' => getenv('GCS_BUCKET') ?: 'usorecords-prod',
         'audio_path' => getenv('GCS_AUDIO_PATH') ?: 'audio',
-        'key_file' => getenv('GCS_KEY_FILE'), // Path to service account JSON key
+        'key_file' => getenv('GOOGLE_APPLICATION_CREDENTIALS'), // Path to service account JSON key
     ],
 ];

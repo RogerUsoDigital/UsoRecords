@@ -57,7 +57,39 @@ class AudioController
             return;
         }
 
-        header('Location: ' . $signedUrl, true, 302);
+        // Define se é para baixar ou ouvir (ex: http://localhost:8080/v1/audio/ID?download=1)
+        $isDownload = isset($_GET['download']) && $_GET['download'] === '1';
+        $disposition = $isDownload ? 'attachment' : 'inline';
+
+        // Nome do arquivo base
+        $filename = basename($audio->storagePath);
+        
+        // Define o MimeType correto para tocar no navegador
+        $mimeType = str_ends_with(strtolower($filename), '.wav') ? 'audio/wav' : 'audio/mpeg';
+
+        // Limpar qualquer saída anterior (BOM, espaços, etc)
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        header_remove();
+
+        // Cabeçalhos HTTP
+        header('HTTP/1.1 200 OK');
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: ' . $disposition . '; filename="' . $filename . '"');
+        header('Cache-Control: private, max-age=3600');
+        header('X-Content-Type-Options: nosniff');
+
+        // Le o arquivo do Google Storage e envia direto pro cliente
+        $stream = @fopen($signedUrl, 'rb');
+        if ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        } else {
+            http_response_code(502);
+            echo json_encode(['success' => false, 'message' => 'Erro ao transmitir o áudio.']);
+        }
+        exit;
     }
 
     public function status(string $id): void

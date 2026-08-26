@@ -2,6 +2,7 @@
 
 use App\Controllers\TestController;
 use App\Controllers\AudioController;
+use App\Controllers\GcsTestController;
 use App\Services\AudioService;
 use App\Middleware\AuthMiddleware;
 
@@ -19,6 +20,11 @@ if ($method === 'GET' && $uri === '/health') {
 
 if ($method === 'GET' && $uri === '/teste') {
     (new TestController())->index();
+    exit;
+}
+
+if ($method === 'GET' && $uri === '/teste-gcs') {
+    (new GcsTestController())->testUpload();
     exit;
 }
 

@@ -6,7 +6,7 @@ use Psr\Http\Message\StreamInterface;
 
 interface StorageDriverInterface
 {
-    public function upload(string $path, StreamInterface $stream, string $mimeType): bool;
+    public function upload(string $path, StreamInterface $stream, string $mimeType): array;
 
     public function getSignedUrl(string $path, int $expiresMinutes): string;
 

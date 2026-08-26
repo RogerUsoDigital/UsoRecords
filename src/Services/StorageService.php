@@ -19,7 +19,8 @@ class StorageService
             return;
         }
 
-        $driverType = Config::get('storage.driver', 'local');
+        $driverType = Config::get('storage.driver');
+
         if ($driverType === 'gcs') {
             $config = Config::get('storage.gcs', []);
             $this->driver = new GcsStorageDriver($config);
@@ -29,7 +30,7 @@ class StorageService
         }
     }
 
-    public function upload(string $path, StreamInterface $stream, string $mimeType): bool
+    public function upload(string $path, StreamInterface $stream, string $mimeType): array
     {
         return $this->driver->upload($path, $stream, $mimeType);
     }
