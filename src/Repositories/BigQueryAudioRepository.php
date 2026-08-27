@@ -28,20 +28,24 @@ class BigQueryAudioRepository implements AudioRepositoryInterface
     public function save(Audio $audio): bool
     {
         try {
-            $sql = sprintf(
-                "INSERT INTO `%s.%s` (
-                    id, source_url, storage_path, file_name, mime_type, file_size, status, created_at, updated_at, expires_at
-                ) VALUES (
-                    @id, @source_url, @storage_path, @file_name, @mime_type, @file_size, @status, @created_at, @updated_at, @expires_at
-                )",
-                $this->datasetId,
-                $this->tableId
-            );
+            // Pega a referência direta da tabela
+            $table = $this->client->dataset($this->datasetId)->table($this->tableId);
 
-            $query = $this->client->query($sql)->parameters($audio->toArray());
-            $result = $this->client->runQuery($query);
+            // O insertRows aceita nativamente nulos e converte os tipos automaticamente
+            $insertResponse = $table->insertRows([
+                ['data' => $audio->toArray()]
+            ]);
 
-            return $result->isComplete();
+            // Verifica se houve alguma rejeição (ex: coluna que não existe)
+            if (!$insertResponse->isSuccessful()) {
+                $failedRows = $insertResponse->failedRows();
+                $firstError = $failedRows[0]['errors'][0]['message'] ?? 'Erro desconhecido no insert';
+                
+                error_log('BigQuery Insert Failed: ' . $firstError);
+                return false;
+            }
+
+            return true;
              
         } catch (\Throwable $e) {
             error_log('Erro ao salvar no BigQuery: ' . $e->getMessage());
