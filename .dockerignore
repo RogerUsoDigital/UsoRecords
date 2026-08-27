@@ -2,3 +2,5 @@ vendor/
 .git/
 .env
 docker-compose.override.yml
+node_modules/
+docker-compose.yml
