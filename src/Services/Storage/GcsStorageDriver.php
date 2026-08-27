@@ -43,12 +43,32 @@ final class GcsStorageDriver implements StorageDriverInterface
         try {
             $bucket = $this->client->bucket($this->bucketName);
             
-            $object = $bucket->upload($stream, [
+            $uploadData = $stream;
+            
+            if (!$stream->isSeekable()) {
+                $tempResource = fopen('php://temp', 'r+');
+                
+                while (!$stream->eof()) {
+                    fwrite($tempResource, $stream->read(8192));
+                }
+                
+                rewind($tempResource);
+                
+                $uploadData = $tempResource; 
+            } else {
+                $stream->rewind();
+            }
+
+            $object = $bucket->upload($uploadData, [
                 'name' => $objectName,
                 'metadata' => [
                     'contentType' => $mimeType,
                 ]
             ]);
+
+            if (is_resource($uploadData)) {
+                fclose($uploadData);
+            }
 
             $info = $object->info();
 
