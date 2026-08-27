@@ -7,7 +7,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: southamerica-east1
+  REGION: us-central1
   REPO_NAME: usorecords-repo
   IMAGE_NAME: usorecords-app
   SERVICE_NAME: usorecords-service
