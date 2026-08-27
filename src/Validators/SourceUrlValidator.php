@@ -43,17 +43,29 @@ final class SourceUrlValidator
     /** @return list<string> */
     private function resolveAddresses(string $host): array
     {
-        $records = @dns_get_record($host, DNS_A | DNS_AAAA);
-        if ($records === false) {
-            return [];
+        $ips = [];
+
+        // Tenta resolver nativamente pelo sistema operacional 
+        $resolved = gethostbynamel($host);
+        
+        if (is_array($resolved)) {
+            $ips = array_merge($ips, $resolved);
         }
-        $addresses = [];
-        foreach ($records as $record) {
-            $address = $record['ip'] ?? $record['ipv6'] ?? null;
-            if (is_string($address) && filter_var($address, FILTER_VALIDATE_IP)) {
-                $addresses[] = $address;
+
+        // Como fallback, tenta usar o DNS do PHP para registros A (IPv4) e AAAA (IPv6)
+        if (empty($ips)) {
+            $records = dns_get_record($host, DNS_A | DNS_AAAA);
+            if (is_array($records)) {
+                foreach ($records as $record) {
+                    if (isset($record['ip'])) {
+                        $ips[] = $record['ip'];
+                    } elseif (isset($record['ipv6'])) {
+                        $ips[] = $record['ipv6'];
+                    }
+                }
             }
         }
-        return array_values(array_unique($addresses));
+
+        return array_values(array_unique($ips));
     }
 }
