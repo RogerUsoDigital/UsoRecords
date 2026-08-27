@@ -13,12 +13,12 @@ class AudioService
         private ?SourceUrlValidator $urlValidator = null,
         private ?AudioDownloadService $downloadService = null,
         private ?StorageService $storageService = null,
-        private ?AudioRepository $audioRepository = null
+        private ?BigQueryService $bigQueryService = null
     ) {
         $this->urlValidator ??= new SourceUrlValidator();
         $this->downloadService ??= new AudioDownloadService();
         $this->storageService ??= new StorageService();
-        $this->audioRepository ??= new AudioRepository();
+        $this->bigQueryService ??= new BigQueryService();
     }
 
     public function store(?string $url): array
@@ -91,7 +91,7 @@ class AudioService
             expiresAt: null
         );
 
-        $saveSuccess = $this->audioRepository->save($audio);
+        $saveSuccess = $this->bigQueryService->save($audio);
 
         if (!$saveSuccess) {
             return [
@@ -120,6 +120,6 @@ class AudioService
 
     public function find(string $id): ?Audio
     {
-        return $this->audioRepository->findById($id);
+        return $this->bigQueryService->findById($id);
     }
 }

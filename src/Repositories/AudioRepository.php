@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\Audio;
 use PDO;
 
-class AudioRepository
+class AudioRepository implements AudioRepositoryInterface
 {
     private PDO $db;
 
@@ -39,20 +39,5 @@ class AudioRepository
         }
 
         return Audio::fromArray($row);
-    }
-
-    public function updateStatus(string $id, string $status): bool
-    {
-        $stmt = $this->db->prepare("
-            UPDATE audios
-            SET status = :status, updated_at = :updated_at
-            WHERE id = :id
-        ");
-
-        return $stmt->execute([
-            'id' => $id,
-            'status' => $status,
-            'updated_at' => date('c'),
-        ]);
     }
 }

@@ -4,3 +4,4 @@ scratch/
 composer.lock
 storage/
 config/*.json
+docker-compose-old.yml

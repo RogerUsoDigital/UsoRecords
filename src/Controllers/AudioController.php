@@ -65,7 +65,7 @@ class AudioController
         $filename = basename($audio->storagePath);
         
         // Define o MimeType correto para tocar no navegador
-        $mimeType = str_ends_with(strtolower($filename), '.wav') ? 'audio/wav' : 'audio/mpeg';
+        $mimeType = $audio->mimeType ?: 'audio/mpeg';
 
         // Limpar qualquer saída anterior (BOM, espaços, etc)
         while (ob_get_level() > 0) {

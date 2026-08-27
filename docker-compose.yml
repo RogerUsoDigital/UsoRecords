@@ -11,24 +11,6 @@ services:
     volumes:
       - .:/var/www/html
       - vendor:/var/www/html/vendor
-      - ./config/bigquery-usodigital-d105432c9e59.json:/var/www/html/config/bigquery-usodigital-d105432c9e59.json:ro
-    depends_on:
-      - mysql
-
-  mysql:
-    image: mysql:8.0
-    container_name: usorecords-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: usorecords
-      MYSQL_USER: usouser
-      MYSQL_PASSWORD: usopassword
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
 
 volumes:
-  mysql_data:
   vendor:

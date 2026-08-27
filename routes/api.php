@@ -44,10 +44,10 @@ if ($method === 'GET' && preg_match('#^/v1/audio/([0-9A-Z]{26})/status$#', $uri,
     exit;
 }
 
-if ($method === 'GET' && preg_match('#^/v1/audio/local-download/([0-9A-Z]{26})$#', $uri, $matches)) {
-    (new AudioController(new AudioService()))->localDownload($matches[1]);
-    exit;
-}
+// if ($method === 'GET' && preg_match('#^/v1/audio/local-download/([0-9A-Z]{26})$#', $uri, $matches)) {
+//     (new AudioController(new AudioService()))->localDownload($matches[1]);
+//     exit;
+// }
 
 http_response_code(404);
 
