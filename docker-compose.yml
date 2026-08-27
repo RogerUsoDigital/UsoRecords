@@ -1,0 +1,16 @@
+services:
+  usorecords:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: usorecords
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+
+volumes:
+  vendor:

@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Services;
+
+use App\Validators\SourceUrlValidator;
+use App\Utils\IdGenerator;
+use App\Models\Audio;
+use App\Repositories\AudioRepository;
+
+class AudioService
+{
+    public function __construct(
+        private ?SourceUrlValidator $urlValidator = null,
+        private ?AudioDownloadService $downloadService = null,
+        private ?StorageService $storageService = null,
+        private ?BigQueryService $bigQueryService = null
+    ) {
+        $this->urlValidator ??= new SourceUrlValidator();
+        $this->downloadService ??= new AudioDownloadService();
+        $this->storageService ??= new StorageService();
+        $this->bigQueryService ??= new BigQueryService();
+    }
+
+    public function store(?string $url): array
+    {
+        // 1. Validação da URL
+        $validation = $this->urlValidator->validate($url);
+        if (!$validation['valid']) {
+            return [
+                'status' => 400,
+                'body' => [
+                    'success' => false,
+                    'message' => $validation['message'],
+                ],
+            ];
+        }
+
+        $url = trim($url);
+
+        // 2. Gerar ID do áudio
+        $id = IdGenerator::generate();
+
+        // 3. Baixar áudio
+        $downloadResult = $this->downloadService->download($url);
+        if (!$downloadResult['success']) {
+            return [
+                'status' => $downloadResult['status'],
+                'body' => [
+                    'success' => false,
+                    'message' => $downloadResult['message'] ?? 'Falha ao baixar o áudio.',
+                ],
+            ];
+        }
+
+        $downloadData = $downloadResult['data'];
+        $stream = $downloadData['stream'];
+        $mimeType = $downloadData['mime_type'];
+        $fileSize = $downloadData['file_size'];
+
+        // 4. Salvar no Storage
+        $datePath = date('Y/m/d');
+        $storagePath = "audio/{$datePath}/{$id}";
+
+        $storageResult = $this->storageService->upload($storagePath, $stream, $mimeType);
+
+        if (!$storageResult['success']) {
+            return [
+                'status' => $storageResult['status'] ?? 500,
+                'body' => [
+                    'success' => false,
+                    'message' => $storageResult['message'] ?? 'Falha ao salvar o áudio no armazenamento.',
+                    'error_code' => $storageResult['error_code'] ?? 'STORAGE_ERROR',
+                ],
+            ];
+        }
+
+        // 5. Salvar metadados
+        $host = getenv('APP_URL') ?: 'http://localhost:8080';
+        $downloadUrl = "{$host}/v1/audio/{$id}";
+
+        $audio = new Audio(
+            id: $id,
+            sourceUrl: $url,
+            storagePath: $storagePath,
+            fileName: $id,
+            mimeType: $mimeType,
+            fileSize: $fileSize,
+            status: 'stored',
+            createdAt: date('Y-m-d H:i:s'),
+            updatedAt: date('Y-m-d H:i:s'),
+            expiresAt: null
+        );
+
+        $saveSuccess = $this->bigQueryService->save($audio);
+
+        if (!$saveSuccess) {
+            return [
+                'status' => 500,
+                'body' => [
+                    'success' => false,
+                    'message' => 'Falha ao salvar metadados do áudio.',
+                ],
+            ];
+        }
+
+        // 6. Retornar resposta de sucesso
+        return [
+            'status' => 200,
+            'body' => [
+                'success' => true,
+                'data' => [
+                    'id' => $id,
+                    'status' => 'stored',
+                    'stream_url' => $downloadUrl,
+                    'download_url' => $downloadUrl . "?download=1",
+                ],
+            ],
+        ];
+    }
+
+    public function find(string $id): ?Audio
+    {
+        return $this->bigQueryService->findById($id);
+    }
+}
