@@ -1,9 +1,7 @@
 FROM php:8.4-apache
 
-# Habilita o mod_rewrite do Apache (necessário para rotas e APIs)
 RUN a2enmod rewrite
 
-# Instala dependências do SO e extensões do PHP
 RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
@@ -13,37 +11,35 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# Copia o Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copia os arquivos de dependência primeiro
 COPY composer.json composer.lock* ./
 
-# Instala as dependências
 RUN composer install \
     --no-interaction \
     --prefer-dist \
     --optimize-autoloader \
     --no-progress
 
-# Copia o resto do código
 COPY . .
 RUN composer dump-autoload --optimize
-
-# Ajusta as permissões para o Apache
 RUN chown -R www-data:www-data /var/www/html
 
-# Configura o Apache para usar a variável $PORT do Cloud Run 
-# e aponta a raiz do servidor para a pasta /public
+# Prepara o php.ini de produção e aumenta limites para arquivos de áudio
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+RUN echo "upload_max_filesize = 50M\n\
+    post_max_size = 50M\n\
+    max_execution_time = 120\n\
+    memory_limit = 256M" >> $PHP_INI_DIR/conf.d/custom-uploads.ini
+
 ENV PORT=8080
 RUN sed -i "s/80/\${PORT}/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 RUN sed -i "s!/var/www/html!/var/www/html/public!g" /etc/apache2/sites-available/000-default.conf
 
-# Garante que qualquer rota da sua API seja redirecionada para o index.php
 RUN echo "<Directory /var/www/html/public>\n\
     AllowOverride All\n\
     Require all granted\n\
     FallbackResource /index.php\n\
+    CGIPassAuth On\n\
     </Directory>" >> /etc/apache2/apache2.conf
 
 EXPOSE 8080
