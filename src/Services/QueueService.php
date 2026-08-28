@@ -39,7 +39,7 @@ class QueueService
             ->setUrl($workerUrl)
             ->setHttpMethod(HttpMethod::POST)
             ->setBody(json_encode($payload))
-            ->putHeaders('Content-Type', 'application/json');
+            ->setHeaders('Content-Type', 'application/json');
 
         // Segurança OIDC: O token garante que o POST veio do Cloud Tasks autenticado
         if (!empty($this->serviceAccountEmail)) {
