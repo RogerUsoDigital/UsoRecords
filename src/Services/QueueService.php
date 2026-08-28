@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
+use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\OidcToken;
@@ -34,12 +35,14 @@ class QueueService
         // A rota oculta "worker" que criaremos na sua API para processar o download
         $workerUrl = rtrim(getenv('APP_URL'), '/') . '/v1/worker/audio-process';
 
+        $headers = array('Content-Type' => 'application/json');
+
         // Prepara a requisição POST que o Cloud Tasks fará para o seu worker 
         $httpRequest = (new HttpRequest())
             ->setUrl($workerUrl)
             ->setHttpMethod(HttpMethod::POST)
             ->setBody(json_encode($payload))
-            ->setHeaders('Content-Type', 'application/json');
+            ->setHeaders($headers);
 
         // Segurança OIDC: O token garante que o POST veio do Cloud Tasks autenticado
         if (!empty($this->serviceAccountEmail)) {
@@ -50,8 +53,12 @@ class QueueService
         $task = (new Task())->setHttpRequest($httpRequest);
 
         try {
-            // Envia a tarefa para o Google Cloud
-            $client->createTask($queuePath, $task);
+            // A forma moderna e exigida pelas versões novas do SDK do Cloud Tasks
+            $request = (new CreateTaskRequest())
+                ->setParent($queuePath)
+                ->setTask($task);
+
+            $client->createTask($request);
         } finally {
             $client->close();
         }
