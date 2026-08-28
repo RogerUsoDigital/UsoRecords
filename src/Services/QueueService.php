@@ -34,7 +34,7 @@ class QueueService
         // A rota oculta "worker" que criaremos na sua API para processar o download
         $workerUrl = rtrim(getenv('APP_URL'), '/') . '/v1/worker/audio-process';
 
-        // Prepara a requisição POST que o Cloud Tasks fará para o seu worker
+        // Prepara a requisição POST que o Cloud Tasks fará para o seu worker 
         $httpRequest = (new HttpRequest())
             ->setUrl($workerUrl)
             ->setHttpMethod(HttpMethod::POST)
