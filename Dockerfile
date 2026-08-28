@@ -5,7 +5,7 @@ RUN a2enmod rewrite
 RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
-    && docker-php-ext-install zip pdo_mysql \
+    && docker-php-ext-install zip pdo_mysql bcmath\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
