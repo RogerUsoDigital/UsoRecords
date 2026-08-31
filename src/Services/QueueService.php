@@ -33,7 +33,8 @@ class QueueService
         $queuePath = $client->queueName($this->projectId, $this->location, $this->queueName);
 
         // A rota oculta "worker" que criaremos na sua API para processar o download
-        $workerUrl = rtrim(getenv('APP_URL'), '/') . '/v1/worker/audio-process';
+        $cloudRunUrl = rtrim(getenv('CLOUD_RUN_URL'), '/');
+        $workerUrl = $cloudRunUrl . '/v1/worker/audio-process';
 
         $headers = array('Content-Type' => 'application/json');
 
