@@ -52,9 +52,9 @@ class QueueService
             $httpRequest->setOidcToken($oidcToken);
         }
 
-        // Agendamento: 5 minutos de delay
+        // Agendamento: 25 minutos de delay
         $scheduledTime = new Timestamp();
-        $scheduledTime->setSeconds(time() + (5 * 60));
+        $scheduledTime->setSeconds(time() + (25 * 60));
 
         $task = (new Task())
         ->setHttpRequest($httpRequest)
