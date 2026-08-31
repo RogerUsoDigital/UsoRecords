@@ -68,13 +68,7 @@ class AudioService
         return [
             'status' => 200, // 202 Accepted: Padrão REST para "Aceito, mas processando"
             'body' => [
-                'success' => true,
-                'data' => [
-                    'id' => $id,
-                    'status' => 'processing', // Mudamos de 'stored' para 'processing'
-                    'stream_url' => $downloadUrl,
-                    'download_url' => $downloadUrl . "?download=1",
-                ],
+                'download_url' => $downloadUrl . "?download=1",
             ],
         ];
     }
