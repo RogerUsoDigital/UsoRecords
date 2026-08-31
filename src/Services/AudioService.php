@@ -66,10 +66,8 @@ class AudioService
 
         // 5. Retornar resposta Imediata de Sucesso
         return [
-            'status' => 200, // 202 Accepted: Padrão REST para "Aceito, mas processando"
-            'body' => [
-                $downloadUrl . "?download=1",
-            ],
+            'status' => 200,
+            'body' => $downloadUrl . "?download=1",
         ];
     }
 
