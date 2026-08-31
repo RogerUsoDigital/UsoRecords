@@ -6,8 +6,23 @@ use App\Controllers\GcsTestController;
 use App\Services\AudioService;
 use App\Middleware\AuthMiddleware;
 
+$host = $_SERVER['HTTP_HOST'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Verifica se o acesso está vindo pela URL nativa do Google (.run.app)
+if (strpos($host, '.run.app') !== false) {
+    
+    // EXCEÇÃO: Permite que o Cloud Tasks acesse o worker internamente
+    if (strpos($uri, '/v1/worker/audio-process') === false) {
+        
+        // Se for qualquer outra rota (como o GET público), bloqueia na hora!
+        http_response_code(403);
+        header('Content-Type: application/json');
+        echo json_encode(["error" => "Acesso direto não permitido. Utilize o domínio oficial."]);
+        exit;
+    }
+}
 
 if ($method === 'GET' && $uri === '/health') {
     header('Content-Type: application/json');
