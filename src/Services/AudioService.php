@@ -66,7 +66,7 @@ class AudioService
 
         // 5. Retornar resposta Imediata de Sucesso
         return [
-            'status' => 202, // 202 Accepted: Padrão REST para "Aceito, mas processando"
+            'status' => 200, // 202 Accepted: Padrão REST para "Aceito, mas processando"
             'body' => [
                 'success' => true,
                 'data' => [
