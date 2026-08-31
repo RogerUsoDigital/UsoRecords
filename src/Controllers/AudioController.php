@@ -43,7 +43,7 @@ class AudioController
                 echo json_encode([
                     'success' => false,
                     'status' => 'processing',
-                    'message' => 'O áudio ainda está sendo processado. Tente novamente em alguns instantes.'
+                    'message' => 'Áudio em processamento. Estará disponível em até 30 minutos após o fim da chamada.'
                 ]);
                 return;
             }
