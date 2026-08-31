@@ -35,11 +35,12 @@ class AudioController
     {
         $audio = $this->audioService->find($id);
         if (!$audio) {
-            http_response_code(404);
+            http_response_code(202);
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => false,
-                'message' => 'Áudio não encontrado.'
+                'status' => 'processing',
+                'message' => 'O áudio ainda está sendo processado. Tente novamente em alguns instantes.'
             ]);
             return;
         }
@@ -63,9 +64,24 @@ class AudioController
 
         // Nome do arquivo base
         $filename = basename($audio->storagePath);
-        
+
         // Define o MimeType correto para tocar no navegador
-        $mimeType = $audio->mimeType ?: 'audio/mpeg';
+        $mimeType = $audio->mimeType ?: 'audio/wav';
+
+        $extensionMap = [
+            'audio/mpeg' => 'mp3',
+            'audio/wav' => 'wav',
+            'audio/x-wav' => 'wav',
+            'audio/ogg' => 'ogg',
+            'audio/mp4' => 'm4a',
+            'audio/aac' => 'aac',
+        ];
+
+        $extension = $extensionMap[$mimeType] ?? null;
+
+        $filenameWithoutExtension = pathinfo($filename, PATHINFO_FILENAME);
+
+        $filename = $filenameWithoutExtension . '.' . $extension;
 
         // Limpar qualquer saída anterior (BOM, espaços, etc)
         while (ob_get_level() > 0) {

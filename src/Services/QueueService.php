@@ -8,6 +8,7 @@ use Google\Cloud\Tasks\V2\HttpMethod;
 use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\OidcToken;
 use Google\Cloud\Tasks\V2\Task;
+use Google\Protobuf\Timestamp;
 
 class QueueService
 {
@@ -51,7 +52,13 @@ class QueueService
             $httpRequest->setOidcToken($oidcToken);
         }
 
-        $task = (new Task())->setHttpRequest($httpRequest);
+        // Agendamento: 5 minutos de delay
+        $scheduledTime = new Timestamp();
+        $scheduledTime->setSeconds(time() + (5 * 60));
+
+        $task = (new Task())
+        ->setHttpRequest($httpRequest)
+        ->setScheduleTime($scheduledTime);
 
         try {
             // A forma moderna e exigida pelas versões novas do SDK do Cloud Tasks
