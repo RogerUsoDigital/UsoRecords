@@ -36,12 +36,19 @@ class AudioController
         $audio = $this->audioService->find($id);
         if (!$audio) {
             http_response_code(202);
-            header('Content-Type: application/json');
-            echo json_encode([
-                'success' => false,
-                'status' => 'processing',
-                'message' => 'O áudio ainda está sendo processado. Tente novamente em alguns instantes.'
-            ]);
+
+            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+            if (str_contains($accept, 'application/json')) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'status' => 'processing',
+                    'message' => 'O áudio ainda está sendo processado. Tente novamente em alguns instantes.'
+                ]);
+                return;
+            }
+
+            require_once __DIR__ . '/../Views/Default/processing.php';
             return;
         }
 
