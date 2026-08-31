@@ -114,12 +114,12 @@ header('Content-Type: text/html; charset=utf-8');
 <body>
 
     <div class="card">
-        <div class="spinner-container">
+        <!-- <div class="spinner-container">
             <div class="spinner"></div>
-        </div>
+        </div> -->
         <h1>Áudio em Processamento</h1>
         <p>
-            <?= htmlspecialchars($message ?? 'O áudio ainda está sendo processado. Tente novamente em alguns instantes.', ENT_QUOTES, 'UTF-8'); ?>
+            <?= htmlspecialchars($message ?? 'Áudio em processamento. Estará disponível em até 30 minutos após o fim da chamada.', ENT_QUOTES, 'UTF-8'); ?>
         </p>
         
         <button type="button" onclick="window.location.reload();" class="btn">
