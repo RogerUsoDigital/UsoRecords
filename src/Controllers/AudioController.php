@@ -149,4 +149,14 @@ class AudioController
         header('Content-Length: ' . filesize($fullPath));
         readfile($fullPath);
     }
+
+    public function index()
+    {
+        // Define o código HTTP 200 de sucesso
+        http_response_code(200);
+
+        // Se o seu index.php for um template PHP simples
+        require_once __DIR__ . '/../Views/Default/index.php';
+        exit;
+    }
 }

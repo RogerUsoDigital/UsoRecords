@@ -33,6 +33,11 @@ if ($method === 'GET' && $uri === '/health') {
     exit;
 }
 
+if ($method === 'GET' && $uri === '/') {
+    (new AudioController(new AudioService()))->index();
+    exit;
+}
+
 if ($method === 'GET' && $uri === '/teste') {
     (new TestController())->index();
     exit;
